@@ -15,25 +15,31 @@
 #define dprintf(...)
 #endif
 
-struct edge {
+struct edge
+    {
     int v1;
     int v2;
     int weight;
-};
+    };
 
 /*** constructors/desctructors ***/
 
-EDGE *newEDGE(int v1,int v2,int w) {
+EDGE
+*newEDGE(int v1,int v2,int w)
+    {
     EDGE *e = malloc(sizeof(EDGE));
     e->v1 = v1;
     e->v2 = v2;
     e->weight = w;
     return e;
-}
+    }
 
-void freeEDGE(void *e) {
+
+void
+freeEDGE(void *e)
+    {
     free((EDGE *) e);
-}
+    }
 
 /*** accessors *******************/
 
@@ -43,27 +49,35 @@ int getEDGEweight(EDGE *e) { return e->weight; }
 
 /*** mutators ********************/
 
-int setEDGEv1(EDGE *e,int v) {
+int
+setEDGEv1(EDGE *e,int v)
+    {
     int temp = e->v1;
     e->v1 = v;
     return temp;
-}
+    }
 
-int setEDGEv2(EDGE *e,int v) {
+int
+setEDGEv2(EDGE *e,int v)
+    {
     int temp = e->v2;
     e->v2 = v;
     return temp;
-}
+    }
 
-int setEDGEweight(EDGE *e,int w) {
+int
+setEDGEweight(EDGE *e,int w)
+    {
     int temp = e->weight;
     e->weight = w;
     return temp;
-}
+    }
 
 /*** informational ***************/
 
-int compareEDGE(void *a,void *b) {
+int
+compareEDGE(void *a,void *b)
+    {
     EDGE *e = a;
     EDGE *f = b;
 
@@ -76,11 +90,13 @@ int compareEDGE(void *a,void *b) {
         return e->v2 - f->v2;
     else
         return r1;
-}
+    }
 
 /*** visualizers *****************/
 
-void displayEDGE(void *a,FILE *fp) {
+void
+displayEDGE(void *a,FILE *fp)
+    {
     EDGE *e = a;
     fprintf(fp,"(%d,%d,%d)",e->v1,e->v2,e->weight);
-}
+    }

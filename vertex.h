@@ -28,5 +28,4 @@ extern void displayVERTEX(void *,FILE *fp);
 extern void displayVERTEXdebug(void *,FILE *fp);
 extern int compareVERTEX(void *,void *);
 extern void freeVERTEX(void *);
-
 #endif

@@ -17,5 +17,4 @@ extern int setEDGEweight(EDGE *,int);
 extern void displayEDGE(void *,FILE *);
 extern int compareEDGE(void *,void *);
 extern void freeEDGE(void *);
-
 #endif

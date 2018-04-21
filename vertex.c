@@ -17,7 +17,8 @@
 #define dprintf(...)
 #endif
 
-struct vertex {
+struct vertex
+    {
     int number;                     //vertex identifier
     DLL *neighbors;                 //the adjacency list
     DLL *weights;                   //the adjacency list
@@ -26,32 +27,37 @@ struct vertex {
     DLL *successors;                //reserved for graph algorithms
     VERTEX *pred;                   //reserved for graph algorithms
     void *owner;                    //reserved for graph algorithms
-};
+    };
 
 /***** public methods *******************************************************/
 
 
 /*** constructors/desctructors ***/
 
-VERTEX *newVERTEX(int n) {
+VERTEX *
+newVERTEX(int n)
+    {
     VERTEX *v = malloc(sizeof(VERTEX));
     assert(v != 0);
     v->number = n;
     v->key = -1;
     v->flag = 0;
+    v->pred = 0;
+    v->owner = 0;
     v->neighbors = newDLL(displayVERTEX,0);
     v->weights = newDLL(displayINTEGER,freeINTEGER);
     v->successors = newDLL(displayVERTEX,0);
     return v;
-}
+    }
 
-void freeVERTEX(void *w) {
+void
+freeVERTEX(void *w)
+    {
     VERTEX *v = w;
     freeDLL(v->neighbors);
     freeDLL(v->weights);
-    freeDLL(v->successors);
     free(v);
-}
+    }
 
 /*** accessors *******************/
 
@@ -66,45 +72,61 @@ DLL *getVERTEXsuccessors(VERTEX *v) { return v->successors; }
 
 /*** mutators ********************/
 
-void *setVERTEXowner(VERTEX *v,void *o) {
+void *
+setVERTEXowner(VERTEX *v,void *o)
+    {
     void *temp = v->owner;
     v->owner = o;
     return temp;
-}
+    }
 
-int setVERTEXflag(VERTEX *v,int f) {
+int
+setVERTEXflag(VERTEX *v,int f)
+    {
     int temp = v->flag;
     v->flag = f;
     return temp;
-}
+    }
 
-VERTEX *setVERTEXpred(VERTEX *v,VERTEX *p) {
+VERTEX *
+setVERTEXpred(VERTEX *v,VERTEX *p)
+    {
     VERTEX *temp = v->pred;
     v->pred = p;
     return temp;
-}
+    }
 
-int setVERTEXkey(VERTEX *v,int k) {
+int
+setVERTEXkey(VERTEX *v,int k)
+    {
     int temp = v->key;
     v->key = k;
     return temp;
-}
+    }
 
-void insertVERTEXneighbor(VERTEX *v,VERTEX *w) {
+void
+insertVERTEXneighbor(VERTEX *v,VERTEX *w)
+    {
     insertDLL(v->neighbors,sizeDLL(v->neighbors),w);
-}
+    }
 
-void insertVERTEXweight(VERTEX *v,int i) {
+void
+insertVERTEXweight(VERTEX *v,int i)
+    {
     insertDLL(v->weights,sizeDLL(v->weights),newINTEGER(i));
-}
+    }
 
-void insertVERTEXsuccessor(VERTEX *v,VERTEX *w) {
+void
+insertVERTEXsuccessor(VERTEX *v,VERTEX *w)
+    {
     insertDLL(v->successors,sizeDLL(v->successors),w);
-}
+    }
 
 /*** informational ***************/
 
-int compareVERTEX(void *a,void *b) {
+int
+compareVERTEX(void *a,void *b)
+    {
     VERTEX *x = a;
     VERTEX *y = b;
 
@@ -120,18 +142,23 @@ int compareVERTEX(void *a,void *b) {
         return x->number - y->number;
     else
         return r;
-}
+    }
 
 /*** visualizers *****************/
 
-void displayVERTEX(void *w,FILE *fp) {
+void
+displayVERTEX(void *w,FILE *fp)
+    {
     VERTEX *v = w;
     fprintf(fp,"%d",v->number);
-}
+    }
 
-void displayVERTEXdebug(void *v,FILE *fp) {
+void
+displayVERTEXdebug(void *v,FILE *fp)
+    {
     VERTEX *a = v;
     fprintf(fp,"%d:",a->number);
     displayDLL(a->neighbors,fp);
     displayDLL(a->weights,fp);
-}
+    displayDLL(a->successors,fp);
+    }
