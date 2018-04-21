@@ -98,4 +98,4 @@ valgrind: 	all
 #                                                         				Clean
 
 clean:
-	rm -f *.o *.vgcore $(MAIN) $(TESTS) $(PRIM)
+	rm -f *.o vgcore.* $(MAIN) $(TESTS) $(PRIM)
