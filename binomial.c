@@ -108,11 +108,6 @@ void freeBHNODE(void *n) {
     free(x);
 }
 
-int isRoot(BHNODE *n) {
-    assert(n != 0);
-    return getBHNODEparent(n) == n ? 1 : 0;
-}
-
 void swap(BHNODE *x, BHNODE *y) {
     void *tmp = getBHNODEvalue(x);
     setBHNODEvalue(x, getBHNODEvalue(y));

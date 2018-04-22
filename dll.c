@@ -16,10 +16,10 @@
  *  Description: This is the DLLNODE struct used to construct the doubly-linked
  *  list data structure.
  */
-typedef struct node {
+typedef struct dllnode {
     void *value;
-    struct node *next;
-    struct node *prev;
+    struct dllnode *next;
+    struct dllnode *prev;
 } DLLNODE;
 
 /*
@@ -99,9 +99,9 @@ void setDLLNODEprev(DLLNODE *n, DLLNODE *newPrev) {
 
 
 // Private DLL method prototypes
-static void addToFront(DLL *items, void *value);
-static void addToBack(DLL *items, void *value);
-static void insertAtIndex(DLL *items,int, void *value);
+static DLLNODE *addToFront(DLL *items, void *value);
+static DLLNODE *addToBack(DLL *items, void *value);
+static DLLNODE *insertAtIndex(DLL *items,int, void *value);
 static void *removeFromFront(DLL *items);
 static void *removeFromBack(DLL *items);
 static void *removeFromIndex(DLL *items, int index);
@@ -117,6 +117,7 @@ static DLLNODE *getNodeAtIndex(DLL *items, int index);
 struct DLL {
     DLLNODE *head;
     DLLNODE *tail;
+    DLLNODE *iterator;
     int size;
 
     // Public methods
@@ -124,9 +125,9 @@ struct DLL {
     void (*free)(void *);
 
     // Private methods
-    void (*addToFront)(DLL *, void *);
-    void (*addToBack)(DLL *, void *);
-    void (*insertAtIndex)(DLL *,int, void *);
+    DLLNODE *(*addToFront)(DLL *, void *);
+    DLLNODE *(*addToBack)(DLL *, void *);
+    DLLNODE *(*insertAtIndex)(DLL *,int, void *);
     void *(*removeFromFront)(DLL *);
     void *(*removeFromBack)(DLL *);
     void *(*removeFromIndex)(DLL *, int);
@@ -144,6 +145,7 @@ DLL *newDLL(void (*d)(void *, FILE *), void (*f)(void *)) {
     assert(items != 0);
     items->head = NULL;
     items->tail = NULL;
+    items->iterator = NULL;
     items->size = 0;
     items->display = d;
     items->free = f;
@@ -166,21 +168,23 @@ DLL *newDLL(void (*d)(void *, FILE *), void (*f)(void *)) {
  *  insertions at a constant distance from the front and from the back.
  *  The doubly-linked list uses zero-based indexing.
  */
-void insertDLL(DLL *items, int index, void *value) {
+void *insertDLL(DLL *items, int index, void *value) {
     assert(items != 0);
     assert(index >= 0 && index <= items->size);
+    DLLNODE *n;
     if (index == 0) {
         // Value is to be added at the front of the list
-        items->addToFront(items, value);
+        n = items->addToFront(items, value);
     }
     else if (index == items->size) {
         // Value is to be added at the back of the list
-        items->addToBack(items, value);
+        n = items->addToBack(items, value);
     }
     else {
         // Value is to be inserted at an index between 1 and items->size - 1
-        items->insertAtIndex(items, index, value);
+        n = items->insertAtIndex(items, index, value);
     }
+    return n;
 }
 
 /*
@@ -208,6 +212,130 @@ void *removeDLL(DLL *items, int index) {
         oldValue = items->removeFromIndex(items, index);
     }
     return oldValue;
+}
+
+/*
+ * Method:
+ * Usage:
+ * Description:
+ */
+void removeDLLall(DLL *items) {
+    assert(items != 0);
+    DLLNODE *curr = items->head;
+    DLLNODE *tmp;
+    while (curr != NULL) {
+        tmp = curr;
+        curr = curr->next;
+        free((DLLNODE *)tmp);
+    }
+    items->head = NULL;
+    items->tail = NULL;
+    items->size = 0;
+}
+
+/*
+ * Method:
+ * Usage:
+ * Description:
+ */
+void *removeDLLnode(DLL *items, void *v) {
+    assert(items != 0);
+    assert(v != 0);
+    DLLNODE *node = v;
+    void *rv = getDLLNODEvalue(node);
+    if (items->size == 1) {
+        // removing only value from list
+        items->head = NULL;
+        items->tail = NULL;
+    }
+    else if (node == items->head) {
+        // removal at head of list
+        setDLLNODEprev(node->next, NULL);
+        items->head = node->next;
+    }
+    else if (node == items->tail) {
+        // removal at tail of list
+        setDLLNODEnext(node->prev, NULL);
+        items->tail = node->prev;
+    }
+    else {
+        // removal between head and tail
+        setDLLNODEnext(node->prev, node->next);
+        setDLLNODEprev(node->next, node->prev);
+    }
+    items->size--;
+    free((DLLNODE *) node);
+    return rv;
+}
+
+/*
+ * Method:
+ * Usage:
+ * Description:
+ */
+void firstDLL(DLL *items) {
+    assert(items != 0);
+    items->iterator = items->head;
+}
+
+/*
+ * Method:
+ * Usage:
+ * Description:
+ */
+void lastDLL(DLL *items) {
+    assert(items != 0);
+    items->iterator = items->tail;
+}
+
+/*
+ * Method:
+ * Usage:
+ * Description:
+ */
+int moreDLL(DLL *items) {
+    assert(items != 0);
+    return items->iterator == NULL ? 0 : 1;
+}
+
+/*
+ * Method:
+ * Usage:
+ * Description:
+ */
+void nextDLL(DLL *items) {
+    assert(items != 0);
+    if (items->iterator == items->tail) {
+        items->iterator = NULL;
+    }
+    else {
+        items->iterator = items->iterator->next;
+    }
+}
+
+/*
+ * Method:
+ * Usage:
+ * Description:
+ */
+void prevDLL(DLL *items) {
+    assert(items != 0);
+    if (items->iterator == items->head) {
+        items->iterator = NULL;
+    }
+    else {
+        items->iterator = items->iterator->prev;
+    }
+}
+
+/*
+ * Method:
+ * Usage:
+ * Description:
+ */
+void *currentDLL(DLL *items) {
+    assert(items != 0);
+    return getDLLNODEvalue(items->iterator);
 }
 
 /*
@@ -251,7 +379,6 @@ void unionDLL(DLL *recipient, DLL *donor) {
  * front and from the back.
  */
 void *getDLL(DLL *items, int index) {
-    // TODO: Can I do better?
     assert(items != 0);
     assert(index >= 0 && index < items->size);
     if (index == 0) {
@@ -276,7 +403,7 @@ void *getDLL(DLL *items, int index) {
  *  constant distance from the front and from the back.
  */
 void *setDLL(DLL *items, int index, void *value) {
-    // TODO: Am I right? Can I do better?
+    // TODO: Can I do better?
     assert(items != 0);
     assert(index >= 0 && index <= items->size);
     void *oldValue = NULL;
@@ -382,7 +509,7 @@ void freeDLL(DLL *items) {
  *  Usage:  addToFront(items, value);
  *  Description: This method adds a value to the head of a DLL object.
  */
-void addToFront(DLL *items, void *value) {
+DLLNODE *addToFront(DLL *items, void *value) {
     assert(items != 0);
     DLLNODE *n = newDLLNODE(value, items->head, NULL);
     if (items->size == 0) {
@@ -396,6 +523,7 @@ void addToFront(DLL *items, void *value) {
         items->head = n;
     }
     items->size++;
+    return n;
 }
 
 /*
@@ -403,18 +531,20 @@ void addToFront(DLL *items, void *value) {
  *  Usage:  addToBack(items, value);
  *  Description: This method adds a value to the tail of a DLL object.
  */
-void addToBack(DLL *items, void *value) {
+DLLNODE *addToBack(DLL *items, void *value) {
     assert(items != 0);
+    DLLNODE *n;
     if (items->size == 0) {
         // List is empty
         items->addToFront(items, value);
     }
     else {
-        DLLNODE *n = newDLLNODE(value, NULL, items->tail);
+        n = newDLLNODE(value, NULL, items->tail);
         setDLLNODEnext(items->tail, n);
         items->tail = n;
     }
     items->size++;
+    return n;
 }
 
 /*
@@ -422,23 +552,25 @@ void addToBack(DLL *items, void *value) {
  *  Usage:  insertAtIndex(items, index, value);
  *  Description: This method inserts a value at a given index of a DLL object.
  */
-void insertAtIndex(DLL *items, int index, void *value) {
+DLLNODE *insertAtIndex(DLL *items, int index, void *value) {
     assert(items != 0);
     assert(index >= 0 && index <= items->size);
+    DLLNODE *n;
     if (index == 0) {
-        items->addToFront(items, value);
+        n = items->addToFront(items, value);
     }
     else if (index == items->size) {
-        items->addToBack(items, value);
+        n = items->addToBack(items, value);
     }
     else {
         // get node prev to node at index
         DLLNODE *curr = items->getNodeAtIndex(items, index - 1);
-        DLLNODE *n = newDLLNODE(value, curr->next, curr);
+        n = newDLLNODE(value, curr->next, curr);
         setDLLNODEprev(curr->next, n);
         setDLLNODEnext(curr, n);
         items->size++;
     }
+    return n;
 }
 
 /*
@@ -524,7 +656,6 @@ void *removeFromIndex(DLL *items, int index) {
  *  Description: This method returns the DLLNODE at the given index.
  */
 DLLNODE *getNodeAtIndex(DLL *items, int index) {
-    // FIXME
     DLLNODE *curr;
     if (items->size - index <= index) {
         // traverse from the tail of the list
