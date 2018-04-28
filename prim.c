@@ -21,8 +21,8 @@ static void addEdge(BINOMIAL *, AVL *, AVL *, int, int, int);
 static void Fatal(char *,...);
 static void printAuthor(void);
 static void update(void *, void *);
-static QUEUE *primMST(BINOMIAL *, VERTEX *);
-static void displayMST(QUEUE *);
+static void primMST(BINOMIAL *, VERTEX *);
+static void displayMST(VERTEX *);
 
 
 int main(int argc,char **argv) {
@@ -57,8 +57,8 @@ int main(int argc,char **argv) {
 
 
     // Find MST
-    QUEUE *mst = primMST(heap, source);
-    displayMST(mst);
+    primMST(heap, source);
+    displayMST(source);
 
     /*
     freeVERTEX(source);
@@ -162,10 +162,9 @@ static void update(void *v, void *n) {
     setVERTEXowner(p, n);
 }
 
-static QUEUE *primMST(BINOMIAL *heap, VERTEX *source) {
+static void primMST(BINOMIAL *heap, VERTEX *source) {
     assert(heap != 0);
     assert(source != 0);
-    QUEUE *mst = newQUEUE(displayVERTEX, 0);
     VERTEX *u;
     VERTEX *v;
     DLL *neighbors;
@@ -197,45 +196,39 @@ static QUEUE *primMST(BINOMIAL *heap, VERTEX *source) {
             nextDLL(neighbors);
             nextDLL(weights);
         }
-        enqueue(mst, u);
     }
-    return mst;
 }
 
-static void displayMST(QUEUE *mst) {
-    assert(mst != 0);
+static void displayMST(VERTEX *source) {
+    assert(source != 0);
     int level = 0;
     int totalWeight = 0;
-    VERTEX *v;
-    DLL *successors;
-    if (sizeQUEUE(mst) > 0) {
-        v = dequeue(mst);
+    printf("%d: ", level);
+    displayVERTEX(source, stdout);
+    printf("\n");
+    level++;
+    DLL *currentLevel = newDLL(displayVERTEX, 0);
+    DLL *nextLevel = getVERTEXsuccessors(source);
+    unionDLL(currentLevel, nextLevel);
+    while (sizeDLL(currentLevel) > 0) {
         printf("%d: ", level);
-        displayVERTEX(v, stdout);
-        printf("\n");
-        level++;
-    }
-    while (sizeQUEUE(mst) > 0) {
-        successors = getVERTEXsuccessors(v);
-        if (sizeDLL(successors) > 0) {
-            printf("%d: ", level);
-            lastDLL(successors);
-            while (moreDLL(successors)) {
-                displayVERTEX(currentDLL(successors), stdout);
-                printf("(");
-                displayVERTEX(getVERTEXpred(currentDLL(successors)), stdout);
-                printf(")");
-                printf("%d", getVERTEXkey(currentDLL(successors)));
-                if (currentDLL(successors) != getDLL(successors, 0)) {
-                    printf(" ");
-                }
-                totalWeight += getVERTEXkey(currentDLL(successors));
-                prevDLL(successors);
+        lastDLL(currentLevel);
+        while (moreDLL(currentLevel)) {
+            displayVERTEX(currentDLL(currentLevel), stdout);
+            printf("(");
+            displayVERTEX(getVERTEXpred(currentDLL(currentLevel)), stdout);
+            printf(")%d", getVERTEXkey(currentDLL(currentLevel)));
+            if (sizeDLL(getVERTEXsuccessors(currentDLL(currentLevel))) > 0) {
+                unionDLL(nextLevel, getVERTEXsuccessors(currentDLL(currentLevel)));
             }
-            printf("\n");
-            level++;
+            totalWeight += getVERTEXkey(currentDLL(currentLevel));
+            prevDLL(currentLevel);
+            if (moreDLL(currentLevel)) printf(" ");
         }
-        v = dequeue(mst);
+        removeDLLall(currentLevel);
+        unionDLL(currentLevel, nextLevel);
+        level++;
+        printf("\n");
     }
     printf("weight: %d\n", totalWeight);
 }
