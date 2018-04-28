@@ -144,6 +144,7 @@ static void addEdge(BINOMIAL *heap, AVL *vertices, AVL *edges, int u, int v, int
         freeEDGE(edgeVU);
         return;
     }
+    insertAVL(edges, edgeUV);
     VERTEX *v1 = addVertex(heap, vertices, u);
     VERTEX *v2 = addVertex(heap, vertices, v);
     insertVERTEXneighbor(v1, v2);
@@ -188,9 +189,9 @@ static void primMST(BINOMIAL *heap, VERTEX *source) {
             weightUV = getINTEGER(currentDLL(weights));
             if (!getVERTEXflag(v)) {
                 if (weightUV < getVERTEXkey(v) || getVERTEXkey(v) == -1) {
+                    setVERTEXpred(v, u);
                     setVERTEXkey(v, weightUV);
                     decreaseKeyBINOMIAL(heap, getVERTEXowner(v), v);
-                    setVERTEXpred(v, u);
                 }
             }
             nextDLL(neighbors);
