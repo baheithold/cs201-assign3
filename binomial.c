@@ -231,7 +231,7 @@ void statisticsBINOMIAL(BINOMIAL *b, FILE *fp) {
     fprintf(fp, "size: %d\nrootlist size: %d\n", b->size, sizeDLL(b->rootlist));
     if (b->size > 0) {
         fprintf(fp, "extreme: ");
-        b->display(b->extreme, fp);
+        displayBHNODE(b->extreme, fp);
         fprintf(fp, "\n");
     }
 }
