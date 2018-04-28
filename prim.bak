@@ -213,34 +213,18 @@ static void displayMST(VERTEX *source) {
     unionDLL(currentLevel, nextLevel);
     while (sizeDLL(currentLevel) > 0) {
         printf("%d: ", level);
-        BINOMIAL *bh = newBINOMIAL(displayINTEGER, compareINTEGER, 0, 0);
         firstDLL(currentLevel);
         while (moreDLL(currentLevel)) {
-            insertBINOMIAL(bh, newINTEGER(getVERTEXnumber(currentDLL(currentLevel))));
+            displayVERTEX(currentDLL(currentLevel), stdout);
+            printf("(");
+            displayVERTEX(getVERTEXpred(currentDLL(currentLevel)), stdout);
+            printf(")%d", getVERTEXkey(currentDLL(currentLevel)));
             if (sizeDLL(getVERTEXsuccessors(currentDLL(currentLevel))) > 0) {
                 unionDLL(nextLevel, getVERTEXsuccessors(currentDLL(currentLevel)));
             }
+            totalWeight += getVERTEXkey(currentDLL(currentLevel));
             nextDLL(currentLevel);
-        }
-        while (sizeBINOMIAL(bh) > 0) {
-            VERTEX *v;
-            firstDLL(currentLevel);
-            int num = getINTEGER(extractBINOMIAL(bh));
-            while (moreDLL(currentLevel)) {
-                v = currentDLL(currentLevel);
-                if (getVERTEXnumber(v) == num) {
-                    displayVERTEX(v, stdout);
-                    printf("(");
-                    displayVERTEX(getVERTEXpred(v), stdout);
-                    printf(")%d", getVERTEXkey(v));
-                    if (sizeBINOMIAL(bh) > 0) {
-                        printf(" ");
-                    }
-                    totalWeight += getVERTEXkey(v);
-                    break;
-                }
-                nextDLL(currentLevel);
-            }
+            if (moreDLL(currentLevel)) printf(" ");
         }
         removeDLLall(currentLevel);
         unionDLL(currentLevel, nextLevel);
